@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?><report><QueryResult>
+  <ResumptionToken>2CAEA0AB4318AD4F4618222BFDE17535AF71228431F540483409B22037AAB798D1657E166C2B19286B5442B493F1390ACCBE041B5BC3FC882B039E48698DB0B8</ResumptionToken>
+  <IsFinished>false</IsFinished>
+  <ResultXml>
+    <rowset xmlns="urn:schemas-microsoft-com:xml-analysis:rowset">
+      <xsd:schema xmlns:saw-sql="urn:saw-sql" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:schemas-microsoft-com:xml-analysis:rowset">
+        <xsd:complexType name="Row">
+          <xsd:sequence>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Column0" saw-sql:columnHeading="0" saw-sql:displayFormula="saw_0" saw-sql:tableHeading="" saw-sql:type="integer" type="xsd:int"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Column1" saw-sql:columnHeading="MMS Id" saw-sql:displayFormula="saw_1" saw-sql:tableHeading="Bibliographic Details" saw-sql:type="varchar" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Column2" saw-sql:columnHeading="Title" saw-sql:displayFormula="saw_2" saw-sql:tableHeading="Bibliographic Details" saw-sql:type="varchar" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Column3" saw-sql:columnHeading="Permanent Call Number" saw-sql:displayFormula="saw_3" saw-sql:tableHeading="Holding Details" saw-sql:type="varchar" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Column4" saw-sql:columnHeading="Library Name" saw-sql:displayFormula="saw_4" saw-sql:tableHeading="Library Unit" saw-sql:type="varchar" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Column5" saw-sql:columnHeading="Barcode" saw-sql:displayFormula="saw_5" saw-sql:tableHeading="Physical Item Details" saw-sql:type="varchar" type="xsd:string"/>
+            <xsd:element maxOccurs="1" minOccurs="0" name="Column6" saw-sql:columnHeading="Process Type" saw-sql:displayFormula="saw_6" saw-sql:tableHeading="Physical Item Details" saw-sql:type="varchar" type="xsd:string"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:schema>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000003703767</Column1>
+        <Column2>Les termes de la ley, or, Certaine difficult and obscure vvords and termes of the common lawes of this realme expounded.</Column2>
+        <Column3>KD313 .R3813 1624</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000023703767</Column1>
+        <Column2>A supply to a draught of an act or system proposed (as is reported) by the committee for regulations concerning the lavv: wherein are provisoes against several inconveniences which may befall the free-people of this nation thereby, unless seasonably by the Supreme Power, or otherwise prevented ; to which is added, a short treatise of tithes ...</Column2>
+        <Column3>KD1740 .S8 1653</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>991000003703767</Column1>
+        <Column2>Let the sea make a noise-- : a history of the North Pacific from Magellan to MacArthur /</Column2>
+        <Column3>DU28.3 .M39 1993</Column3>
+        <Column4>Trinity College Library</Column4>
+        <Column5>31840003688589</Column5>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000043703767</Column1>
+        <Column2>Della pesca e della caccia /</Column2>
+        <Column3>PQ4201 .B53 vol. 48</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000073703767</Column1>
+        <Column2>Il primo libro delle lettere /</Column2>
+        <Column3>PQ4201 .B53 vol. 51</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000083703767</Column1>
+        <Column2>De' romanzi, delle comedie e delle tragedie /</Column2>
+        <Column3>PQ4201 .B53 vol. 52-53</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000093703767</Column1>
+        <Column2>A treatise of spousals, or matrimonial contracts : wherein all the questions relating to that subject are ingeniously debated and resolved /</Column2>
+        <Column3>KD753 .S9 1686</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000103703767</Column1>
+        <Column2>Joh. Wolfgangi Textoris JGti &amp; in Universit. Electoral. Pal. Antecessoris Juris Primarij ac Consilarij Electoralis, Synopsis Juris Gentium.</Column2>
+        <Column3>K559 .T48 1680</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000113703767</Column1>
+        <Column2>The Authors club, founded MDCCCLXXXII, incorporated MDCCCLXXXVII.</Column2>
+        <Column3>PN121 .A8</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>991000013703767</Column1>
+        <Column2>Lend me your ears : great speeches in history /</Column2>
+        <Column3>PN6122 .L4 1992</Column3>
+        <Column4>Trinity College Library</Column4>
+        <Column5>31840003694090</Column5>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000173703767</Column1>
+        <Column2>Della composizione del mondo /</Column2>
+        <Column3>PQ4201 .B53 vol. 54</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000203703767</Column1>
+        <Column2>Medea /</Column2>
+        <Column3>PN1997 .M4248 2004</Column3>
+        <Column4>Trinity College Library</Column4>
+        <Column5>31840010196998</Column5>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>991000023703767</Column1>
+        <Column2>Haunted : tales of the grotesque /</Column2>
+        <Column3>PS3565.A8 H38 1994</Column3>
+        <Column4>Trinity College Library</Column4>
+        <Column5>31840003706621</Column5>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000243703767</Column1>
+        <Column2>Southeast Asian writers /</Column2>
+        <Column3>PN451 .D53 v.348</Column3>
+        <Column4>Trinity College Library</Column4>
+        <Column5>31840006976189</Column5>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000283703767</Column1>
+        <Column2>Der Hafen von Alexandria Troas /</Column2>
+        <Column3>QUARTO DS155 .A75 Bd.63</Column3>
+        <Column4>Trinity College Library</Column4>
+        <Column5>31840009873128</Column5>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000303703767</Column1>
+        <Column2>Neue Funde und Forschungen in Phrygien /</Column2>
+        <Column3>QUARTO DS155 .A75 Bd.61</Column3>
+        <Column4>Trinity College Library</Column4>
+        <Column5>31840009872641</Column5>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000323703767</Column1>
+        <Column2>Novelle esemplari;</Column2>
+        <Column3>PQ4201 .B53 vol. 66-68</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000333703767</Column1>
+        <Column2>Ottawa lectures on admissible representations of reductive p-adic groups /</Column2>
+        <Column3>QA176 .O88 2009</Column3>
+        <Column4>Trinity College Library</Column4>
+        <Column5>31840009873185</Column5>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>991000033703767</Column1>
+        <Column2>Brazil /</Column2>
+        <Column3>PS3571.P4 B48 1994</Column3>
+        <Column4>Trinity College Library</Column4>
+        <Column5>31840003706886</Column5>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000343703767</Column1>
+        <Column2>The first flowering : Bruce Rogers at the Riverside Press, 1896-1912, with a checklist of the Riverside Press editions /</Column2>
+        <Column3>Z232.R67 K45 2008</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000353703767</Column1>
+        <Column2>Birdscapes : birds in our imagination and experience /</Column2>
+        <Column3>QL677.5 .M96 2009</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000363703767</Column1>
+        <Column2>Lars Jonsson's birds : paintings from a near horizon.</Column2>
+        <Column3>QUARTO ND793.J65 A4 2008</Column3>
+        <Column4>Watkinson Library</Column4>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>99100003703767</Column1>
+        <Column2>Class, race, and the civil rights movement /</Column2>
+        <Column3>E185.615 .B557 1987</Column3>
+        <Column4>Trinity College Library</Column4>
+        <Column5>31840007195516</Column5>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000373703767</Column1>
+        <Column2>The U.S. Army and irregular warfare, 1775-2007 : selected papers from the 2007 Conference of Army Historians /</Column2>
+        <Column3>D 114.2:AR 5/5</Column3>
+        <Column4>Trinity College Library</Column4>
+        <Column5>31840009873912</Column5>
+        <Column6>None</Column6>
+      </Row>
+      <Row>
+        <Column0>0</Column0>
+        <Column1>9910000383703767</Column1>
+        <Column2>Enduring voices : oral histories of the U.S. Army experience in Afghanistan, 2003-2005 /</Column2>
+        <Column3>D 114.2:AF 3/2</Column3>
+        <Column4>Trinity College Library</Column4>
+        <Column5>31840009873979</Column5>
+        <Column6>None</Column6>
+      </Row>
+    </rowset>
+  </ResultXml>
+</QueryResult></report>

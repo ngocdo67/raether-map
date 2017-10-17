@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "498008499872",
+    "firebase_url": "https://fir-9d3b8.firebaseio.com",
+    "project_id": "fir-9d3b8",
+    "storage_bucket": "fir-9d3b8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498008499872:android:080831bc0825e2d7",
+        "android_client_info": {
+          "package_name": "trincoll.norahdo.raethermap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "498008499872-j5h2hts52f8utrve6h2v45tao30ttmph.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "trincoll.norahdo.raethermap",
+            "certificate_hash": "5dacc2e2061cb7edc79d0f770ced3e3edab3b9b0"
+          }
+        },
+        {
+          "client_id": "498008499872-gu5mldcjreomcke7fjngj0ouq75hfkc9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChY2s00D42LefX7u6d0tnhRBKHF6PQXgQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498008499872-gu5mldcjreomcke7fjngj0ouq75hfkc9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
