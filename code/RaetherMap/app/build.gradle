@@ -30,5 +30,12 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
-
+dependencies {
+    compile 'com.indooratlas.android:indooratlas-android-sdk:2.5.3@aar'
+}
+repositories{
+    maven {
+        url "http://indooratlas-ltd.bintray.com/mvn-public"
+    }
+}
 apply plugin: 'com.google.gms.google-services'
