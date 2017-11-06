@@ -1,4 +1,4 @@
-package trincoll.norahdo.raethermap;
+package trincoll.norahdo.backupmap;
 
 import android.Manifest;
 import android.app.DownloadManager;
@@ -38,11 +38,11 @@ import com.indooratlas.android.sdk.resources.IATask;
 
 import java.io.File;
 
-public class ImageViewActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "IndoorAtlasExample";
 
-    private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 1;
+    private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 0;
 
     // blue dot radius in meters
     private static final float dotRadius = 1.0f;
@@ -75,7 +75,7 @@ public class ImageViewActivity extends AppCompatActivity {
             if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
                 String id = region.getId();
                 Log.d(TAG, "floorPlan changed to " + id);
-                Toast.makeText(ImageViewActivity.this, id, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, id, Toast.LENGTH_SHORT).show();
                 fetchFloorPlan(id);
             }
         }
@@ -90,7 +90,8 @@ public class ImageViewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_image_view);
+        setContentView(R.layout.activity_main);
+        Log.d(TAG, "Create app");
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
 
@@ -105,11 +106,12 @@ public class ImageViewActivity extends AppCompatActivity {
            location automatically */
         final String floorPlanId = getString(R.string.indooratlas_floor_plan_id);
         if (!TextUtils.isEmpty(floorPlanId)) {
+            Log.d(TAG, floorPlanId);
             final IALocation location = IALocation.from(IARegion.floorPlan(floorPlanId));
             mIALocationManager.setLocation(location);
         }
 
-        // Setup long click listener for sharing traceId
+//        // Setup long click listener for sharing traceId
 //        ExampleUtils.shareTraceId(findViewById(R.id.imageView), ImageViewActivity.this,
 //                mIALocationManager);
 
@@ -182,6 +184,7 @@ public class ImageViewActivity extends AppCompatActivity {
      * Fetches floor plan data from IndoorAtlas server. Some room for cleaning up!!
      */
     private void fetchFloorPlan(String id) {
+        Log.d(TAG, "fetch floor plan starts");
         cancelPendingNetworkCalls();
         final IATask<IAFloorPlan> asyncResult = mFloorPlanManager.fetchFloorPlanWithId(id);
         mPendingAsyncResult = asyncResult;
@@ -217,7 +220,7 @@ public class ImageViewActivity extends AppCompatActivity {
                     } else {
                         // do something with error
                         if (!asyncResult.isCancelled()) {
-                            Toast.makeText(ImageViewActivity.this,
+                            Toast.makeText(MainActivity.this,
                                     (result.getError() != null
                                             ? "error loading floor plan: " + result.getError()
                                             : "access to floor plan denied"), Toast.LENGTH_LONG)

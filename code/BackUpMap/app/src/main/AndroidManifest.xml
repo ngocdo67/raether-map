@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="trincoll.norahdo.raethermap">
+    package="trincoll.norahdo.backupmap">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+
     <uses-feature android:name="android.hardware.sensor.accelerometer"
         android:required="true" />
     <uses-feature android:name="android.hardware.sensor.compass"
@@ -27,10 +30,10 @@
 
         <meta-data
             android:name="com.indooratlas.android.sdk.API_KEY"
-            android:value="60699ea3-e893-44a7-8734-90c77a92f3e2" />
+            android:value="ff45baa6-8239-4ee1-bb85-8d2ec246ceca"/>
         <meta-data
             android:name="com.indooratlas.android.sdk.API_SECRET"
-            android:value="C3eA5HKA/Ec4sY2Qsybmd07qAOlbra/Zr4HtbKLZb8JoqDX8q7l4fZovN2faJgFtzpRRHqCUwQmwPu2HTEz2dX0qVFDhoPH5BJLxFah9Srd8MNAszXT+fwPUqODP7A==" />
+            android:value="+qSsVk75WcdtpY6tcZOjfV7ZRPAtbBqLRR8dgBnhqQT3HOHn9WIpAsWHnx7iFU71tqZim0V8R1dap40zvyo0b7cyLFWTxPaR558jpNGH9CmiDowkyY5vUs5Gy8AV1A=="/>
 
         <activity android:name=".MainActivity">
             <intent-filter>

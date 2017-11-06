@@ -1,4 +1,4 @@
-package trincoll.norahdo.raethermap;
+package trincoll.norahdo.backupmap;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -8,10 +8,11 @@ import android.util.AttributeSet;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
+
 /**
- * Extends great ImageView library by Dave Morrissey. See more:
- * https://github.com/davemorrissey/subsampling-scale-image-view.
+ * Created by ngocdo67 on 11/1/17.
  */
+
 public class BlueDotView extends SubsamplingScaleImageView {
 
     private float radius = 1.0f;

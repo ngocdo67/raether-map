@@ -1,7 +1,5 @@
 <resources>
-    <string name="app_name">Raether Map</string>
-    <string name="title_activity_maps">Map</string>
-
+    <string name="app_name">RaetherMap</string>
     <string name="location_permission_request_title">Permission required</string>
     <string name="location_permission_request_rationale">Access to coarse location is required for faster first fix.</string>
     <string name="location_permission_denied_message">No access to locations. Time to first fix may be severely delayed!</string>
@@ -11,5 +9,4 @@
     <string name="button_close">Close</string>
     <string name="permission_button_accept">Sure</string>
     <string name="permission_button_deny">Deny</string>
-
 </resources>
