@@ -3,6 +3,7 @@ package trincoll.norahdo.raethermap;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
+import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -17,10 +18,15 @@ import android.os.Environment;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
@@ -78,6 +84,22 @@ public class MainActivity extends AppCompatActivity {
             mIALocationManager.setLocation(location);
         }
         ensureWifiPermission();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView =
+                (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+        return super.onCreateOptionsMenu(menu);
     }
 
     /**
