@@ -4,5 +4,5 @@
 
     <!-- Set your floor plan id here or leave empty for fully automatic selection
          You can get the floor plan id from developer website-->
-    <string name="indooratlas_floor_plan_id"></string>
+    <string name="indooratlas_floor_plan_id">9d6e58b2-1853-4de0-a655-b7f3368ea492</string>
 </resources>
