@@ -1,18 +1,23 @@
 package trincoll.norahdo.raethermap;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.location.LocationListener;
+import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,48 +27,55 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
 import com.indooratlas.android.sdk.IALocationRequest;
 import com.indooratlas.android.sdk.IARegion;
 import com.indooratlas.android.sdk.resources.IAFloorPlan;
+import com.indooratlas.android.sdk.resources.IALatLng;
 import com.indooratlas.android.sdk.resources.IALocationListenerSupport;
 import com.indooratlas.android.sdk.resources.IAResourceManager;
 import com.indooratlas.android.sdk.resources.IAResult;
 import com.indooratlas.android.sdk.resources.IAResultCallback;
 import com.indooratlas.android.sdk.resources.IATask;
-import com.squareup.picasso.Picasso;
 
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "Raether Map";
-    private static final int CODE_PERMISSIONS = 1;
+
+    private static final String TAG = "Main Activity";
+    private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
+    private static final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 1;
+
+
+    // blue dot radius in meters
+    private static final float dotRadius = 1.0f;
+
     private IALocationManager mIALocationManager;
-    private IAResourceManager mResourceManager;
-    private ImageView mFloorPlanImage;
-    private IAFloorPlan mFloorPlan;
+    private IAResourceManager mFloorPlanManager;
     private IATask<IAFloorPlan> mPendingAsyncResult;
+    private IAFloorPlan mFloorPlan;
+    private BlueDotView mImageView;
     private long mDownloadId;
     private DownloadManager mDownloadManager;
-    private IAResourceManager mFloorPlanManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // prevent the screen going to sleep while app is on foreground
+        findViewById(android.R.id.content).setKeepScreenOn(true);
 
-        mIALocationManager = IALocationManager.create(this);
-        mFloorPlanImage = (ImageView) findViewById(R.id.map_image);
-
-        mIALocationManager.registerRegionListener(mRegionListener);
-
-        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mIALocationListener);
-        Log.d(TAG, "onCreate/ requestLocationUpdates() called");
+        mImageView = (BlueDotView) findViewById(R.id.imageView);
 
         mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mIALocationManager = IALocationManager.create(this);
@@ -72,61 +84,154 @@ public class MainActivity extends AppCompatActivity {
         /* optional setup of floor plan id
            if setLocation is not called, then location manager tries to find
            location automatically */
-        final String floorPlanId = "9d6e58b2-1853-4de0-a655-b7f3368ea492";
+        final String floorPlanId = getString(R.string.indooratlas_floor_plan_id);
         if (!TextUtils.isEmpty(floorPlanId)) {
-            Toast.makeText(MainActivity.this, "Not valid floor plan id", Toast.LENGTH_LONG).show();
             final IALocation location = IALocation.from(IARegion.floorPlan(floorPlanId));
             mIALocationManager.setLocation(location);
         }
+        ensureWifiPermission();
+        ensureExternalStoragePermission();
     }
 
-    private IALocationListener mIALocationListener = new IALocationListener() {
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.options_menu, menu);
+//
+//        // Associate searchable configuration with the SearchView
+//        SearchManager searchManager =
+//                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        MenuItem searchItem = menu.findItem(R.id.search);
+//        SearchView searchView =
+//                (SearchView) MenuItemCompat.getActionView(searchItem);
+//        searchView.setSearchableInfo(
+//                searchManager.getSearchableInfo(getComponentName()));
+//        return super.onCreateOptionsMenu(menu);
+//    }
 
-        // Called when the location has changed.
-        @Override
-        public void onLocationChanged(IALocation location) {
+    /**
+     * Checks that we have access to required information, if not ask for users permission.
+     */
+    private void ensureWifiPermission() {
 
-            Log.d(TAG, "Latitude: " + location.getLatitude());
-            Log.d(TAG, "Longitude: " + location.getLongitude());
-            Log.d(TAG, "Floor number: " + location.getFloorLevel());
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // we don't have access to coarse locations, hence we have not access to wifi either
+            // check if this requires explanation to user
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.location_permission_request_title)
+                        .setMessage(R.string.location_permission_request_rationale)
+                        .setPositiveButton(R.string.permission_button_accept, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Log.d(TAG, "request permissions");
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                                        REQUEST_CODE_ACCESS_COARSE_LOCATION);
+                            }
+                        })
+                        .setNegativeButton(R.string.permission_button_deny, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(MainActivity.this,
+                                        R.string.location_permission_denied_message,
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        })
+                        .show();
+
+            } else {
+
+                // ask user for permission
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                        REQUEST_CODE_ACCESS_COARSE_LOCATION);
+
+            }
+
         }
+    }
 
-        @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) {
-            //TODO: do something here
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView =
+                (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+//        searchView.setSubmitButtonEnabled(true);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Toast.makeText(MainActivity.this, query, Toast.LENGTH_LONG).show();
+                Log.i("Query text submitted", query);
+                searchBook(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+//                Toast.makeText(MainActivity.this, newText, Toast.LENGTH_LONG).show();
+                return false;
+            }
+        });
+
+        Intent intent = getIntent();
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            Log.d("Intent query", query);
+//            searchBook (query);
         }
-    };
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mLocationListener);
-        mIALocationManager.registerRegionListener(mRegionListener);
-        registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-        Log.d(TAG, "onResume/ requestLocationUpdates() called");
+        return super.onCreateOptionsMenu(menu);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mIALocationManager.removeLocationUpdates(mLocationListener);
-        mIALocationManager.unregisterRegionListener(mRegionListener);
-        unregisterReceiver(onComplete);
-        Log.d(TAG, "onPause/ removing requestLocationUpdates()");
-    }
+    private void searchBook(String query) {
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
-    @Override
-    protected void onDestroy() {
-        mIALocationManager.destroy();
-        Log.d(TAG, "onDestroy/ destroying mIALocationManager");
+        Query bookQuery = reference.child("Books").orderByChild("Title").startAt(query).limitToFirst(1);
+        bookQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    // dataSnapshot is the "issue" node with all children with id 0
+//                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
+//                        // do something with the individual "issues"
+//                    }
+//                    Book value = dataSnapshot.getValue(Book.class);
+//                    Toast.makeText(MainActivity.this, value.toString(), Toast.LENGTH_LONG).show();
+//                    Log.d("On data change", value.toString());
+                } else {
+                    Log.d("TAG", "Data snapshot does not exist");
+                }
+            }
 
-        super.onDestroy();
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("On cancel", "Fail to read value");
+            }
+        });
     }
 
     private IALocationListener mLocationListener = new IALocationListenerSupport() {
         @Override
         public void onLocationChanged(IALocation location) {
             Log.d(TAG, "location is: " + location.getLatitude() + "," + location.getLongitude());
+            if (mImageView != null && mImageView.isReady()) {
+                IALatLng latLng = new IALatLng(location.getLatitude(), location.getLongitude());
+                PointF point = mFloorPlan.coordinateToPoint(latLng);
+                mImageView.setDotCenter(point);
+                mImageView.postInvalidate();
+            }
         }
     };
 
@@ -149,9 +254,37 @@ public class MainActivity extends AppCompatActivity {
 
     };
 
-    /*  Broadcast receiver for floor plan image download */
-    private BroadcastReceiver onComplete = new BroadcastReceiver() {
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mIALocationManager.destroy();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ensureExternalStoragePermission();
+        // starts receiving location updates
+        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mLocationListener);
+        mIALocationManager.registerRegionListener(mRegionListener);
+        registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mIALocationManager.removeLocationUpdates(mLocationListener);
+        mIALocationManager.unregisterRegionListener(mRegionListener);
+        unregisterReceiver(onComplete);
+    }
+
+    /**
+     * Methods for fetching floor plan data and bitmap image.
+     * Method {@link #fetchFloorPlan(String id)} fetches floor plan data including URL to bitmap
+     */
+
+     /*  Broadcast receiver for floor plan image download */
+    private BroadcastReceiver onComplete = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, 0L);
@@ -180,9 +313,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void showFloorPlanImage(String filePath) {
         Log.w(TAG, "showFloorPlanImage: " + filePath);
-        Picasso.with(this)
-                .load(filePath)
-                .into(mFloorPlanImage);
+        mImageView.setRadius(mFloorPlan.getMetersToPixels() * dotRadius);
+        mImageView.setImage(ImageSource.uri(filePath));
     }
 
     /**
@@ -241,29 +373,32 @@ public class MainActivity extends AppCompatActivity {
             mPendingAsyncResult.cancel();
         }
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.options_menu, menu);
 
-        // Associate searchable configuration with the SearchView
-        SearchManager searchManager =
-                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        MenuItem searchItem = menu.findItem(R.id.search);
-        SearchView searchView =
-                (SearchView) MenuItemCompat.getActionView(searchItem);
-        searchView.setSearchableInfo(
-                searchManager.getSearchableInfo(getComponentName()));
-        return super.onCreateOptionsMenu(menu);
+
+    private void ensureExternalStoragePermission() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
+        }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        //Handle if any of the permissions are denied, in grantResults
+        switch (requestCode) {
+            case REQUEST_CODE_WRITE_EXTERNAL_STORAGE:
+
+                if (grantResults.length == 0
+                        || grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    Toast.makeText(this, R.string.storage_permission_denied_message,
+                            Toast.LENGTH_LONG).show();
+                    finish();
+                }
+                break;
+        }
+
     }
-
 
 }
