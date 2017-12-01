@@ -68,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
     private BlueDotView mImageView;
     private long mDownloadId;
     private DownloadManager mDownloadManager;
+    private DatabaseReference myRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
         findViewById(android.R.id.content).setKeepScreenOn(true);
 
         mImageView = (BlueDotView) findViewById(R.id.imageView);
+
+        myRef = FirebaseDatabase.getInstance().getReference().child("Books");
+
 
         mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         mIALocationManager = IALocationManager.create(this);
@@ -190,19 +195,23 @@ public class MainActivity extends AppCompatActivity {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             Log.d("Intent query", query);
-//            searchBook (query);
+            searchBook (query);
         }
         return super.onCreateOptionsMenu(menu);
     }
 
     private void searchBook(String query) {
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
-        Query bookQuery = reference.child("Books").orderByChild("Title").startAt(query).limitToFirst(1);
+        Query bookQuery = myRef.orderByChild("title").equalTo(query);
         bookQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
+                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
+                        // do something with the individual "issues"
+                        Book value = issue.getValue(Book.class);
+                        Log.d(TAG, "Value is: " + value.toString() + " Title: " + value.getTitle());
+                    }
                     // dataSnapshot is the "issue" node with all children with id 0
 //                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
 //                        // do something with the individual "issues"

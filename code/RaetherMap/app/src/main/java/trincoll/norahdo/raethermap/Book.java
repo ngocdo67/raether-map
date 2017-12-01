@@ -7,12 +7,15 @@ package trincoll.norahdo.raethermap;
 public class Book {
     private String title;
     private String callNumber;
-    private String serialNumber;
+    private String barcode;
 
-    public Book(String title, String callNumber, String serialNumber) {
+    public Book () {
+
+    }
+    public Book(String title, String callNumber, String barcode) {
         this.title = title;
         this.callNumber = callNumber;
-        this.serialNumber = serialNumber;
+        this.barcode = barcode;
     }
 
     public String getTitle() {
@@ -31,11 +34,15 @@ public class Book {
         this.callNumber = callNumber;
     }
 
-    public String getSerialNumber() {
-        return serialNumber;
+    public String getBarcode() {
+        return barcode;
     }
 
-    public void setSerialNumber(String serialNumber) {
-        this.serialNumber = serialNumber;
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
+    }
+
+    public String toString () {
+        return "Title: " + title + " Call Number: " + callNumber + " Barcode: " + barcode;
     }
 }
