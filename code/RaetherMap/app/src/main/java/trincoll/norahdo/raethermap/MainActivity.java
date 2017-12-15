@@ -181,6 +181,12 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, query, Toast.LENGTH_LONG).show();
                 Log.i("Query text submitted", query);
                 searchBook(query);
+                if (mImageView != null && mImageView.isReady()) {
+                    IALatLng latLng = new IALatLng(41.7441, -72.69189909557345);
+                    PointF point = mFloorPlan.coordinateToPoint(latLng);
+                    mImageView.setResultCenter(point);
+                    mImageView.postInvalidate();
+                }
                 return false;
             }
 
@@ -212,16 +218,14 @@ public class MainActivity extends AppCompatActivity {
                         Book value = issue.getValue(Book.class);
                         Log.d(TAG, "Value is: " + value.toString() + " Title: " + value.getTitle());
                     }
-                    // dataSnapshot is the "issue" node with all children with id 0
-//                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
-//                        // do something with the individual "issues"
-//                    }
-//                    Book value = dataSnapshot.getValue(Book.class);
-//                    Toast.makeText(MainActivity.this, value.toString(), Toast.LENGTH_LONG).show();
-//                    Log.d("On data change", value.toString());
+
+
+
                 } else {
                     Log.d("TAG", "Data snapshot does not exist");
                 }
+
+
             }
 
             @Override
@@ -322,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showFloorPlanImage(String filePath) {
         Log.w(TAG, "showFloorPlanImage: " + filePath);
-        mImageView.setRadius(mFloorPlan.getMetersToPixels() * dotRadius);
+        mImageView.setRadius(mFloorPlan.getMetersToPixels() * dotRadius * 0.5f);
         mImageView.setImage(ImageSource.uri(filePath));
     }
 
