@@ -11,4 +11,6 @@
     <string name="permission_button_deny">Deny</string>
     <string name="search_hint">Search Raether Map</string>
     <string name="search_button">Search</string>
+    <string name="current_location_switch">Current Location</string>
+    <string name="search_result_switch">Search Location</string>
 </resources>

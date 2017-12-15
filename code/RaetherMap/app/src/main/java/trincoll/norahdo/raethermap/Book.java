@@ -8,9 +8,6 @@ public class Book {
     private String title;
     private String callNumber;
     private String barcode;
-    private String floorId;
-    private String latitude;
-    private String longitude;
 
     public Book () {
 

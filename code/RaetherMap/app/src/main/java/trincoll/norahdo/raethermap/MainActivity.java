@@ -27,6 +27,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
@@ -69,6 +71,9 @@ public class MainActivity extends AppCompatActivity {
     private long mDownloadId;
     private DownloadManager mDownloadManager;
     private DatabaseReference myRef;
+    private Button resultAndCurrentLocationSwitch;
+    private String mPreviousFloorPlanId;
+    private String mFloorPlanId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +83,27 @@ public class MainActivity extends AppCompatActivity {
         findViewById(android.R.id.content).setKeepScreenOn(true);
 
         mImageView = (BlueDotView) findViewById(R.id.imageView);
+        resultAndCurrentLocationSwitch = (Button) findViewById(R.id.switchResultCurrentLocation);
+        resultAndCurrentLocationSwitch.setVisibility(View.INVISIBLE);
+        resultAndCurrentLocationSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String floorPlanId;
+                if (resultAndCurrentLocationSwitch.getText().equals("Current Location")){
+                    resultAndCurrentLocationSwitch.setText(R.string.search_result_switch);
+                } else {
+                    if (mPreviousFloorPlanId == null) {
+                        floorPlanId = "52f5232c-6c63-42c2-bdaf-707783ee7b9a";
+                    }
+                    resultAndCurrentLocationSwitch.setText(R.string.current_location_switch);
+                }
+                if (!TextUtils.isEmpty(mPreviousFloorPlanId)) {
+                    final IALocation location = IALocation.from(IARegion.floorPlan(mPreviousFloorPlanId));
+                    mIALocationManager.setLocation(location);
+                }
+
+            }
+        });
 
         myRef = FirebaseDatabase.getInstance().getReference().child("Books");
 
@@ -181,12 +207,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, query, Toast.LENGTH_LONG).show();
                 Log.i("Query text submitted", query);
                 searchBook(query);
-                if (mImageView != null && mImageView.isReady()) {
-                    IALatLng latLng = new IALatLng(41.7441, -72.69189909557345);
-                    PointF point = mFloorPlan.coordinateToPoint(latLng);
-                    mImageView.setResultCenter(point);
-                    mImageView.postInvalidate();
-                }
+
                 return false;
             }
 
@@ -225,6 +246,19 @@ public class MainActivity extends AppCompatActivity {
 //                    Book value = dataSnapshot.getValue(Book.class);
 //                    Toast.makeText(MainActivity.this, value.toString(), Toast.LENGTH_LONG).show();
 //                    Log.d("On data change", value.toString());
+                    resultAndCurrentLocationSwitch.setVisibility(View.VISIBLE);
+                    resultAndCurrentLocationSwitch.setText(R.string.current_location_switch);
+                    if (mImageView != null && mImageView.isReady()) {
+                        String floorPlanId = "52f5232c-6c63-42c2-bdaf-707783ee7b9a";
+                        if (!TextUtils.isEmpty(floorPlanId)) {
+                            final IALocation location = IALocation.from(IARegion.floorPlan(floorPlanId));
+                            mIALocationManager.setLocation(location);
+                        }
+                        IALatLng latLng = new IALatLng(41.7441, -72.69189909557345);
+                        PointF point = mFloorPlan.coordinateToPoint(latLng);
+                        mImageView.setResultCenter(point);
+                        mImageView.postInvalidate();
+                    }
                 } else {
                     Log.d("TAG", "Data snapshot does not exist");
                 }
@@ -256,6 +290,10 @@ public class MainActivity extends AppCompatActivity {
         public void onEnterRegion(IARegion region) {
             if (region.getType() == IARegion.TYPE_FLOOR_PLAN) {
                 String id = region.getId();
+                if (!id.equals(mFloorPlanId)) {
+                    mPreviousFloorPlanId = mFloorPlanId;
+                }
+                mFloorPlanId = id;
                 Log.d(TAG, "floorPlan changed to " + id);
                 Toast.makeText(MainActivity.this, id, Toast.LENGTH_SHORT).show();
                 fetchFloorPlan(id);
