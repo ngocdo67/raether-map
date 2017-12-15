@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void searchBook(String query) {
 
-        Query bookQuery = myRef.orderByChild("title").equalTo(query);
+        Query bookQuery = myRef.orderByChild("title").startAt(query).endAt(query +"\uf8ff");
         bookQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -218,14 +218,16 @@ public class MainActivity extends AppCompatActivity {
                         Book value = issue.getValue(Book.class);
                         Log.d(TAG, "Value is: " + value.toString() + " Title: " + value.getTitle());
                     }
-
-
-
+                    // dataSnapshot is the "issue" node with all children with id 0
+//                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
+//                        // do something with the individual "issues"
+//                    }
+//                    Book value = dataSnapshot.getValue(Book.class);
+//                    Toast.makeText(MainActivity.this, value.toString(), Toast.LENGTH_LONG).show();
+//                    Log.d("On data change", value.toString());
                 } else {
                     Log.d("TAG", "Data snapshot does not exist");
                 }
-
-
             }
 
             @Override
