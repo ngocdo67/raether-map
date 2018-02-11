@@ -53,6 +53,8 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
+import java.util.logging.Logger;
+
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class MainActivity extends AppCompatActivity implements LocationListener{
@@ -276,7 +278,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
-            mMap.setMyLocationEnabled(false);
+            try {
+                mMap.setMyLocationEnabled(false);
+            } catch (SecurityException e) {
+                Log.d("Security exception", "Set my location enabled to false cannot be done");
+            }
+
         }
 
         // start receiving location updates & monitor region changes
