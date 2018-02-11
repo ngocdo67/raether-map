@@ -5,6 +5,7 @@ import android.app.SearchManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -17,6 +18,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -37,6 +39,12 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
@@ -57,7 +65,7 @@ import java.util.logging.Logger;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-public class MainActivity extends AppCompatActivity implements LocationListener{
+public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback {
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 42;
 
     private static final String TAG = "IndoorAtlasExample";
@@ -75,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     private Target mLoadTarget;
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
     private boolean mShowIndoorLocation = false;
+    private DatabaseReference myRef;
 
     private void showLocationCircle(LatLng center, double accuracyRadius) {
         if (mCircle == null) {
@@ -148,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             public boolean onQueryTextSubmit(String query) {
                 Toast.makeText(MainActivity.this, query, Toast.LENGTH_LONG).show();
                 Log.i("Query text submitted", query);
-//                searchBook(query);
+                searchBook(query);
 
                 return false;
             }
@@ -163,6 +172,49 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         return super.onCreateOptionsMenu(menu);
     }
 
+    private void searchBook(String query) {
+
+        Query bookQuery = myRef.orderByChild("title").startAt(query).endAt(query +"\uf8ff");
+        bookQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
+                        // do something with the individual "issues"
+                        Book value = issue.getValue(Book.class);
+                        Log.d(TAG, "Value is: " + value.toString() + " Title: " + value.getTitle());
+                    }
+                    // dataSnapshot is the "issue" node with all children with id 0
+                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
+                        // do something with the individual "issues"
+                    }
+                    Book value = dataSnapshot.getValue(Book.class);
+                    Toast.makeText(MainActivity.this, value.toString(), Toast.LENGTH_LONG).show();
+//                    Log.d("On data change", value.toString());
+//                    resultAndCurrentLocationSwitch.setVisibility(View.VISIBLE);
+//                    resultAndCurrentLocationSwitch.setText(R.string.current_location_switch);
+//                    if (mImageView != null && mImageView.isReady()) {
+//                        String floorPlanId = "52f5232c-6c63-42c2-bdaf-707783ee7b9a";
+//                        if (!TextUtils.isEmpty(floorPlanId)) {
+//                            final IALocation location = IALocation.from(IARegion.floorPlan(floorPlanId));
+//                            mIALocationManager.setLocation(location);
+//                        }
+//                        IALatLng latLng = new IALatLng(41.7441, -72.69189909557345);
+//                        PointF point = mFloorPlan.coordinateToPoint(latLng);
+//                        mImageView.setResultCenter(point);
+//                        mImageView.postInvalidate();
+//                    }
+                } else {
+                    Log.d("TAG", "Data snapshot does not exist");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("On cancel", "Fail to read value");
+            }
+        });
+    }
     /**
      * Listener that changes overlay if needed
      */
@@ -255,6 +307,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         mIALocationManager = IALocationManager.create(this);
         mResourceManager = IAResourceManager.create(this);
 
+        myRef = FirebaseDatabase.getInstance().getReference().child("Books");
+
         // Request GPS locations
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
@@ -276,13 +330,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         super.onResume();
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            try {
-                mMap.setMyLocationEnabled(false);
-            } catch (SecurityException e) {
-                Log.d("Security exception", "Set my location enabled to false cannot be done");
-            }
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
+
+//            try {
+//                mMap.setMyLocationEnabled(false);
+//            } catch (SecurityException e) {
+//                Log.d("Security exception", "Set my location enabled to false cannot be done");
+//            }
 
         }
 
@@ -418,6 +473,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         if (mFetchFloorPlanTask != null && !mFetchFloorPlanTask.isCancelled()) {
             mFetchFloorPlanTask.cancel();
         }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
     }
 
     private void showInfo(String text) {
