@@ -55,7 +55,7 @@ import com.squareup.picasso.Target;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements LocationListener{
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 42;
 
     private static final String TAG = "IndoorAtlasExample";
@@ -246,9 +246,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
 
@@ -304,20 +301,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         mIALocationManager.registerRegionListener(mRegionListener);
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        if (googleMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            googleMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            googleMap.setMyLocationEnabled(false);
-        }
-
-        // start receiving location updates & monitor region changes
-        mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
-        mIALocationManager.registerRegionListener(mRegionListener);
-
-    }
 
     /**
      * Sets bitmap of floor plan as ground overlay on Google Maps
