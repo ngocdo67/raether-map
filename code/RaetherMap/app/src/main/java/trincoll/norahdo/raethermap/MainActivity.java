@@ -1,6 +1,8 @@
 package trincoll.norahdo.raethermap;
 
 import android.Manifest;
+import android.app.SearchManager;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -12,11 +14,17 @@ import android.os.Looper;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -118,6 +126,40 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         }
     };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        MenuItem searchItem = menu.findItem(R.id.search);
+        SearchView searchView =
+                (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
+//        searchView.setSubmitButtonEnabled(true);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Toast.makeText(MainActivity.this, query, Toast.LENGTH_LONG).show();
+                Log.i("Query text submitted", query);
+//                searchBook(query);
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+//                Toast.makeText(MainActivity.this, newText, Toast.LENGTH_LONG).show();
+                return false;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
+    }
 
     /**
      * Listener that changes overlay if needed
@@ -391,12 +433,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private void showInfo(String text) {
         final Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), text,
                 Snackbar.LENGTH_INDEFINITE);
-//        snackbar.setAction(R.string.button_close, new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                snackbar.dismiss();
-//            }
-//        });
+        snackbar.setAction(R.string.button_close, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                snackbar.dismiss();
+            }
+        });
         snackbar.show();
     }
 
