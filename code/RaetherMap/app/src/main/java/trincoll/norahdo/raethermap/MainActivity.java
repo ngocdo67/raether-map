@@ -261,9 +261,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 mShowIndoorLocation = true;
                 showInfo("Showing IndoorAtlas SDK\'s location output");
             }
-            showInfo("Enter " + (region.getType() == IARegion.TYPE_VENUE
-                    ? "VENUE "
-                    : "FLOOR_PLAN ") + region.getId());
+//            showInfo("Enter " + (region.getType() == IARegion.TYPE_VENUE
+//                    ? "VENUE "
+//                    : "FLOOR_PLAN ") + region.getId());
+            showInfo("You are on Level A");
         }
 
         @Override
@@ -503,15 +504,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     private void showInfo(String text) {
-//        final Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), text,
-//                Snackbar.LENGTH_INDEFINITE);
-//        snackbar.setAction(R.string.button_close, new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                snackbar.dismiss();
-//            }
-//        });
-//        snackbar.show();
+        final Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), text,
+                Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(R.string.button_close, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.show();
     }
 
     private void startListeningPlatformLocations() {
