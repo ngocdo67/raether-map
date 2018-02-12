@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import android.content.Context;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -111,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         } else {
             // move existing markers position to received location
             mResultMarker.setPosition(center);
+            mResultMarker.setTitle(bookTitle);
+            mResultMarker.setSnippet(bookCallNumber);
         }
     }
 
@@ -160,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setSearchableInfo(
                 searchManager.getSearchableInfo(getComponentName()));
+
 //        searchView.setSubmitButtonEnabled(true);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -499,15 +503,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     private void showInfo(String text) {
-        final Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), text,
-                Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction(R.string.button_close, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                snackbar.dismiss();
-            }
-        });
-        snackbar.show();
+//        final Snackbar snackbar = Snackbar.make(findViewById(android.R.id.content), text,
+//                Snackbar.LENGTH_INDEFINITE);
+//        snackbar.setAction(R.string.button_close, new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                snackbar.dismiss();
+//            }
+//        });
+//        snackbar.show();
     }
 
     private void startListeningPlatformLocations() {
