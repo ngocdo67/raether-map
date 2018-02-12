@@ -2,10 +2,8 @@ package trincoll.norahdo.raethermap;
 
 import android.Manifest;
 import android.app.SearchManager;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -14,11 +12,9 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,6 +35,8 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.GroundOverlay;
 import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -61,8 +59,6 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
-import java.util.logging.Logger;
-
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback {
@@ -75,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     private Circle mCircle;
+    private Marker mResultMarker;
     private IARegion mOverlayFloorPlan = null;
     private GroundOverlay mGroundOverlay = null;
     private IALocationManager mIALocationManager;
@@ -102,6 +99,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             // move existing markers position to received location
             mCircle.setCenter(center);
             mCircle.setRadius(accuracyRadius);
+        }
+    }
+
+    private void showResultMarker(LatLng center, String bookTitle, String bookCallNumber) {
+        if (mResultMarker == null) {
+            // location can received before map is initialized, ignoring those updates
+            if (mMap != null) {
+                mResultMarker = mMap.addMarker(new MarkerOptions().position(center).title(bookTitle).snippet(bookCallNumber));
+            }
+        } else {
+            // move existing markers position to received location
+            mResultMarker.setPosition(center);
         }
     }
 
@@ -179,9 +188,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
+                    String bookTitle = "";
+                    String bookCallNumber = "";
                     for (DataSnapshot issue : dataSnapshot.getChildren()) {
                         // do something with the individual "issues"
                         Book value = issue.getValue(Book.class);
+                        bookTitle = value.getTitle();
+                        bookCallNumber = value.getCallNumber();
                         Log.d(TAG, "Value is: " + value.toString() + " Title: " + value.getTitle());
                     }
                     // dataSnapshot is the "issue" node with all children with id 0
@@ -190,6 +203,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     }
                     Book value = dataSnapshot.getValue(Book.class);
                     Toast.makeText(MainActivity.this, value.toString(), Toast.LENGTH_LONG).show();
+
+                    final LatLng center = new LatLng(41.7441, -72.69189909557345);
+
+                    showResultMarker(center, bookTitle, bookCallNumber);
+
 //                    Log.d("On data change", value.toString());
 //                    resultAndCurrentLocationSwitch.setVisibility(View.VISIBLE);
 //                    resultAndCurrentLocationSwitch.setText(R.string.current_location_switch);
