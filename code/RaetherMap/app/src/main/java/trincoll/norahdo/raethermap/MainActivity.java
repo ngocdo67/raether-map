@@ -3,7 +3,9 @@ package trincoll.norahdo.raethermap;
 import android.Manifest;
 import android.app.SearchManager;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -38,6 +40,8 @@ import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -56,10 +60,13 @@ import com.indooratlas.android.sdk.resources.IAResourceManager;
 import com.indooratlas.android.sdk.resources.IAResult;
 import com.indooratlas.android.sdk.resources.IAResultCallback;
 import com.indooratlas.android.sdk.resources.IATask;
+import com.indooratlas.android.wayfinding.IARoutingLeg;
+import com.indooratlas.android.wayfinding.IAWayfinder;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,6 +93,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private boolean mShowIndoorLocation = false;
     private DatabaseReference myRef;
 
+    private IAWayfinder mWayFinder;
+    private LatLng mLocation;
+
+    private LatLng mDestination;
+    private Marker mDestinationMarker;
+    private Polyline mPath;
+    private Polyline mPathCurrent;
+    private IARoutingLeg[] mCurrentRoute;
+    private Integer mFloor;
+
     private Map<String, String> levelIdToName = new HashMap<String, String>();
 
     private void showLocationCircle(LatLng center, double accuracyRadius) {
@@ -109,16 +126,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     private void showResultMarker(LatLng center, String bookTitle, String bookCallNumber) {
-        if (mResultMarker == null) {
+        if (mDestinationMarker == null) {
             // location can received before map is initialized, ignoring those updates
             if (mMap != null) {
-                mResultMarker = mMap.addMarker(new MarkerOptions().position(center).title(bookTitle).snippet(bookCallNumber));
+                mDestinationMarker = mMap.addMarker(new MarkerOptions().position(center).title(bookTitle).snippet(bookCallNumber));
             }
         } else {
             // move existing markers position to received location
-            mResultMarker.setPosition(center);
-            mResultMarker.setTitle(bookTitle);
-            mResultMarker.setSnippet(bookCallNumber);
+            mDestinationMarker.setPosition(center);
+            mDestinationMarker.setTitle(bookTitle);
+            mDestinationMarker.setSnippet(bookCallNumber);
         }
     }
 
@@ -142,6 +159,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
 
             final LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
+
+            mFloor = location.getFloorLevel();
+            mLocation = new LatLng(location.getLatitude(), location.getLongitude());
+            if (mWayFinder != null) {
+                mWayFinder.setLocation(mLocation.latitude, mLocation.longitude, mFloor);
+            }
+            updateRoute();
 
             if (mShowIndoorLocation) {
                 showLocationCircle(center, location.getAccuracy());
@@ -213,9 +237,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     Book value = dataSnapshot.getValue(Book.class);
                     Toast.makeText(MainActivity.this, value.toString(), Toast.LENGTH_LONG).show();
 
-                    final LatLng center = new LatLng(41.7441, -72.69189909557345);
+                    final LatLng point = new LatLng(41.7441, -72.69189909557345);
 
-                    showResultMarker(center, bookTitle, bookCallNumber);
+                    if (mMap != null) {
+
+                        mDestination = point;
+                        showResultMarker(point, bookTitle, bookCallNumber);
+                        if (mWayFinder != null) {
+                            mWayFinder.setDestination(point.latitude, point.longitude, mFloor);
+                        }
+                        Log.d(TAG, "Set destination: (" + mDestination.latitude + ", " +
+                                mDestination.longitude + "), floor=" + mFloor);
+
+                        updateRoute();
+                    }
+//                    showResultMarker(center, bookTitle, bookCallNumber);
 
 //                    Log.d("On data change", value.toString());
 //                    resultAndCurrentLocationSwitch.setVisibility(View.VISIBLE);
@@ -344,6 +380,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         }
 
         startListeningPlatformLocations();
+
+        String graphJSON = loadGraphJSON();
+        if (graphJSON == null) {
+            Toast.makeText(this, "Could not find wayfinding_graph.json from raw " +
+                    "resources folder. Cannot do wayfinding.", Toast.LENGTH_LONG).show();
+        } else {
+            mWayFinder = IAWayfinder.create(this, graphJSON);
+        }
     }
 
     @Override
@@ -351,6 +395,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         super.onDestroy();
         // remember to clean up after ourselves
         mIALocationManager.destroy();
+        if (mWayFinder != null) {
+            mWayFinder.close();
+        }
     }
 
     @Override
@@ -530,5 +577,86 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 e.printStackTrace();
             }
         }
+//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//        if (locationManager != null && (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+//            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+//        }
+    }
+
+    /**
+     * Load "wayfinding_graph.json" from raw resources folder of the app module
+     * @return
+     */
+    private String loadGraphJSON() {
+        try {
+            Resources res = getResources();
+            int resourceIdentifier = res.getIdentifier("wayfinding_graph", "raw", this.getPackageName());
+            InputStream in_s = res.openRawResource(resourceIdentifier);
+
+            byte[] b = new byte[in_s.available()];
+            in_s.read(b);
+            return new String(b);
+        } catch (Exception e) {
+            Log.e(TAG, "Could not find wayfinding_graph.json from raw resources folder");
+            return null;
+        }
+
+    }
+
+    private void updateRoute() {
+        if (mLocation == null || mDestination == null || mWayFinder == null) {
+            return;
+        }
+        Log.d(TAG, "Updating the wayfinding route");
+
+        mCurrentRoute = mWayFinder.getRoute();
+        if (mCurrentRoute == null || mCurrentRoute.length == 0) {
+            // Wrong credentials or invalid wayfinding graph
+            return;
+        }
+        if (mPath != null) {
+            // Remove old path if any
+            clearOldPath();
+        }
+        visualizeRoute(mCurrentRoute);
+    }
+
+    /**
+     * Clear the visualizations for the wayfinding paths
+     */
+    private void clearOldPath() {
+        mPath.remove();
+        mPathCurrent.remove();
+    }
+
+    /**
+     * Visualize the IndoorAtlas Wayfinding path on top of the Google Maps.
+     * @param legs Array of IARoutingLeg objects returned from IAWayfinder.getRoute()
+     */
+    private void visualizeRoute(IARoutingLeg[] legs) {
+        // optCurrent will contain the wayfinding path in the current floor and opt will contain the
+        // whole path, including parts in other floors.
+        PolylineOptions opt = new PolylineOptions();
+        PolylineOptions optCurrent = new PolylineOptions();
+
+        for (IARoutingLeg leg : legs) {
+            opt.add(new LatLng(leg.getBegin().getLatitude(), leg.getBegin().getLongitude()));
+            if (leg.getBegin().getFloor() == mFloor && leg.getEnd().getFloor() == mFloor) {
+                optCurrent.add(
+                        new LatLng(leg.getBegin().getLatitude(), leg.getBegin().getLongitude()));
+                optCurrent.add(
+                        new LatLng(leg.getEnd().getLatitude(), leg.getEnd().getLongitude()));
+            }
+        }
+        optCurrent.color(Color.RED);
+        if (legs.length > 0) {
+            IARoutingLeg leg = legs[legs.length-1];
+            opt.add(new LatLng(leg.getEnd().getLatitude(), leg.getEnd().getLongitude()));
+        }
+        // Here wayfinding path in different floor than current location is visualized in blue and
+        // path in current floor is visualized in red
+        mPath = mMap.addPolyline(opt);
+        mPathCurrent = mMap.addPolyline(optCurrent);
     }
 }

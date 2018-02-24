@@ -15,8 +15,18 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        mavenCentral()
         maven {
             url "https://maven.google.com" // Google's Maven repository
+        }
+        maven {
+            url "http://indooratlas-ltd.bintray.com/mvn-public"
+        }
+        maven {
+            url "http://indooratlas-ltd.bintray.com/mvn-public-alpha"
+        }
+        maven {
+            url "http://indooratlas-ltd.bintray.com/mvn-public-beta"
         }
     }
 }

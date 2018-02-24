@@ -35,7 +35,9 @@ dependencies {
 }
 
 dependencies {
-    compile 'com.indooratlas.android:indooratlas-android-sdk:2.6.1@aar'
+    compile "com.indooratlas.android:indooratlas-android-sdk:2.7.0-beta-848@aar"
+    compile 'com.indooratlas.android:indooratlas-android-wayfinding:2.7.0-beta-9'
+
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.google.maps.android:android-maps-utils:0.3.+'
     compile 'com.google.firebase:firebase-core:10.0.1'
