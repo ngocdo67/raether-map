@@ -60,6 +60,9 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback {
@@ -82,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
     private boolean mShowIndoorLocation = false;
     private DatabaseReference myRef;
+
+    private Map<String, String> levelIdToName = new HashMap<String, String>();
 
     private void showLocationCircle(LatLng center, double accuracyRadius) {
         if (mCircle == null) {
