@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private IARoutingLeg[] mCurrentRoute;
     private Integer mFloor;
 
-    private Map<String, String> levelIdToName = new HashMap<String, String>();
+    private Map<String, String> levelIdToName = new HashMap<>();
 
     private void showLocationCircle(LatLng center, double accuracyRadius) {
         if (mCircle == null) {
@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 //            showInfo("Enter " + (region.getType() == IARegion.TYPE_VENUE
 //                    ? "VENUE "
 //                    : "FLOOR_PLAN ") + region.getId());
-            showInfo("You are on Level A");
+            showInfo("You are on " + (levelIdToName.containsKey(region.getId()) ? levelIdToName.get(region.getId()) : "Unknown Region"));
         }
 
         @Override
@@ -319,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             mShowIndoorLocation = false;
             showInfo("Exit " + (region.getType() == IARegion.TYPE_VENUE
                     ? "VENUE "
-                    : "FLOOR_PLAN ") + region.getId());
+                    : "FLOOR_PLAN ") + (levelIdToName.containsKey(region.getId()) ? levelIdToName.get(region.getId()) : "Unknown Region"));
         }
 
     };
@@ -388,6 +388,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         } else {
             mWayFinder = IAWayfinder.create(this, graphJSON);
         }
+
+        levelIdToName.put("ecb0affc-e427-419a-a6f6-e3552ec9fe8d", "Test Dorm");
+        levelIdToName.put("9d6e58b2-1853-4de0-a655-b7f3368ea4", "Level A");
+        levelIdToName.put("4325d274-2346-4638-993d-37f57b8baadd", "Level 1");
+        levelIdToName.put("52f5232c-6c63-42c2-bdaf-707783ee7b9a", "Level 2");
+        levelIdToName.put("d3b33927-829d-48c3-a39b-0b97357b26bd", "Level 3");
     }
 
     @Override
@@ -649,7 +655,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         new LatLng(leg.getEnd().getLatitude(), leg.getEnd().getLongitude()));
             }
         }
-        optCurrent.color(Color.RED);
+        optCurrent.color(Color.BLUE);
         if (legs.length > 0) {
             IARoutingLeg leg = legs[legs.length-1];
             opt.add(new LatLng(leg.getEnd().getLatitude(), leg.getEnd().getLongitude()));
