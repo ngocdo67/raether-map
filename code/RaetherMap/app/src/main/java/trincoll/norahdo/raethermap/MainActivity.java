@@ -246,8 +246,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     Book value = dataSnapshot.getValue(Book.class);
                     Toast.makeText(MainActivity.this, value.toString(), Toast.LENGTH_LONG).show();
 
-                    final LatLng point = new LatLng(41.7441, -72.69189909557345);
-
+                    final LatLng point = new LatLng(41.7441, -72.6919);
+//                    final LatLng point = new LatLng(41.7441, -72.69189909557345);
+//                    BookToPositionConverter converter = new BookToPositionConverter();
+//                    final LatLng point = converter.getPosition(bookCallNumber);
                     if (mMap != null) {
 
                         mDestination = point;
@@ -426,14 +428,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         String graphJSON = loadGraphJSON();
         if (graphJSON == null) {
-            Toast.makeText(this, "Could not find wayfinding_graph.json from raw " +
+            Toast.makeText(this, "Could not find wayfinding_graph_1.json from raw " +
                     "resources folder. Cannot do wayfinding.", Toast.LENGTH_LONG).show();
         } else {
             mWayFinder = IAWayfinder.create(this, graphJSON);
         }
 
         levelIdToName.put("ecb0affc-e427-419a-a6f6-e3552ec9fe8d", "Test Dorm");
-        levelIdToName.put("9d6e58b2-1853-4de0-a655-b7f3368ea4", "Level A");
+        levelIdToName.put("9d6e58b2-1853-4de0-a655-b7f3368ea492", "Level A");
         levelIdToName.put("4325d274-2346-4638-993d-37f57b8baadd", "Level 1");
         levelIdToName.put("52f5232c-6c63-42c2-bdaf-707783ee7b9a", "Level 2");
         levelIdToName.put("d3b33927-829d-48c3-a39b-0b97357b26bd", "Level 3");

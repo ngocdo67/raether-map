@@ -7,6 +7,7 @@
     android:background="#efefef"
     tools:context="trincoll.norahdo.raethermap.MainActivity">
 
+    <!--Source code: Indoor Atlas-->
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
@@ -16,6 +17,7 @@
         android:layout_height="match_parent">
     </fragment>
 
+    <!--Source code: https://www.androidhive.info/2017/12/android-working-with-bottom-sheet/-->
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/bottom_sheet"
@@ -40,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/activity_margin"
                 android:layout_weight="2"
-                android:text="Order Details"
+                android:text="Suggested Results"
                 android:textColor="#444"
                 android:textSize="18dp"
                 android:textStyle="bold" />
@@ -52,41 +54,20 @@
                 android:layout_weight="1"
                 android:textStyle="bold"
                 android:textSize="15dp"
-                android:text="₹435.00"></TextView>
+                android:text="2 books"/>
         </LinearLayout>
 
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chicken Fried Rice 1x1" />
+            android:text="Book 1" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Paneer Tikka 1x2" />
+            android:text="Book 2" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/activity_margin"
-            android:text="Delivery Address"
-            android:textColor="#444"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Flat No 404, Skyline Apartments, Vizag - 500576" />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:background="#000"
-            android:foreground="?attr/selectableItemBackground"
-            android:text="PROCEED PAYMENT"
-            android:textColor="#fff" />
 
     </LinearLayout>
 
