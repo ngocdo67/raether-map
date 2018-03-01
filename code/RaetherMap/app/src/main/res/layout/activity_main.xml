@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#efefef"
+    android:id="@+id/coordinator_layout"
     tools:context="trincoll.norahdo.raethermap.MainActivity">
 
     <!--Source code: Indoor Atlas-->
@@ -30,44 +31,21 @@
         app:behavior_peekHeight="56dp"
         app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
-        <LinearLayout
+        <!--Source code: https://www.journaldev.com/13086/android-bottom-sheet-->
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center_vertical"
-            android:weightSum="3">
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:text="RESULTS"/>
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/activity_margin"
-                android:layout_weight="2"
-                android:text="Suggested Results"
-                android:textColor="#444"
-                android:textSize="18dp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:gravity="right"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textStyle="bold"
-                android:textSize="15dp"
-                android:text="2 books"/>
-        </LinearLayout>
-
-
-        <TextView
-            android:layout_width="wrap_content"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Book 1" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Book 2" />
-
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="16dp" />
 
     </LinearLayout>
 

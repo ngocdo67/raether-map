@@ -14,10 +14,14 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
@@ -69,7 +73,9 @@ import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -77,7 +83,7 @@ import butterknife.ButterKnife;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
-public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback{
     private static final int MY_PERMISSION_ACCESS_FINE_LOCATION = 42;
 
     private static final String TAG = "IndoorAtlasExample";
@@ -112,7 +118,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 //    @BindView(R.id.bottom_sheet)
     LinearLayout layoutBottomSheet;
 
-    BottomSheetBehavior sheetBehavior;
+    private BottomSheetBehavior sheetBehavior;
+    private RecyclerView recylerView;
+    private CoordinatorLayout coordinatorLayout;
+    private BooksAdapter booksAdapter;
+    private List<Book> booksList = new ArrayList<>();
 
     private void showLocationCircle(LatLng center, double accuracyRadius) {
         if (mCircle == null) {
@@ -237,8 +247,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         Book value = issue.getValue(Book.class);
                         bookTitle = value.getTitle();
                         bookCallNumber = value.getCallNumber();
+                        booksList.add(new Book (bookTitle, bookCallNumber, ""));
                         Log.d(TAG, "Value is: " + value.toString() + " Title: " + value.getTitle());
                     }
+                    booksAdapter.notifyDataSetChanged();
                     // dataSnapshot is the "issue" node with all children with id 0
                     for (DataSnapshot issue : dataSnapshot.getChildren()) {
                         // do something with the individual "issues"
@@ -375,6 +387,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
 //        ButterKnife.bind(this);
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
@@ -412,6 +425,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         });
 
+        recylerView = (RecyclerView) findViewById(R.id.recyclerView);
+        booksAdapter = new BooksAdapter(booksList);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recylerView.setLayoutManager(mLayoutManager);
+        recylerView.setItemAnimator(new DefaultItemAnimator());
+        recylerView.setAdapter(booksAdapter);
+        prepareBookData();
+
         // instantiate IALocationManager and IAResourceManager
         mIALocationManager = IALocationManager.create(this);
         mResourceManager = IAResourceManager.create(this);
@@ -439,6 +460,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         levelIdToName.put("4325d274-2346-4638-993d-37f57b8baadd", "Level 1");
         levelIdToName.put("52f5232c-6c63-42c2-bdaf-707783ee7b9a", "Level 2");
         levelIdToName.put("d3b33927-829d-48c3-a39b-0b97357b26bd", "Level 3");
+    }
+
+    private void prepareBookData () {
+        booksList.add (new Book ("Title1", "AB", "123"));
+        booksList.add (new Book ("Title2", "AB", "123"));
+        booksList.add (new Book ("Title3", "AB", "123"));
+        booksList.add (new Book ("Title4", "AB", "123"));
+        booksList.add (new Book ("Title5", "AB", "123"));
+        booksList.add (new Book ("Title6", "AB", "123"));
+        booksAdapter.notifyDataSetChanged();
     }
 
     @Override
