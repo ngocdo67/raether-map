@@ -216,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             public boolean onQueryTextSubmit(String query) {
                 Toast.makeText(MainActivity.this, query, Toast.LENGTH_LONG).show();
                 Log.i("Query text submitted", query);
+                booksList.clear();
                 searchBook(query);
 
                 return false;
