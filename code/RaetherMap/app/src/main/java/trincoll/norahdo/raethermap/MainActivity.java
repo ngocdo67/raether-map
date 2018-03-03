@@ -20,6 +20,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -78,9 +79,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 public class MainActivity extends AppCompatActivity implements LocationListener, OnMapReadyCallback{
@@ -119,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     LinearLayout layoutBottomSheet;
 
     private BottomSheetBehavior sheetBehavior;
-    private RecyclerView recylerView;
+    private RecyclerView recyclerView;
     private CoordinatorLayout coordinatorLayout;
     private BooksAdapter booksAdapter;
     private List<Book> booksList = new ArrayList<>();
@@ -242,6 +240,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 if (dataSnapshot.exists()) {
                     String bookTitle = "";
                     String bookCallNumber = "";
+                    int count = 0;
                     for (DataSnapshot issue : dataSnapshot.getChildren()) {
                         // do something with the individual "issues"
                         Book value = issue.getValue(Book.class);
@@ -249,6 +248,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         bookCallNumber = value.getCallNumber();
                         booksList.add(new Book (bookTitle, bookCallNumber, ""));
                         Log.d(TAG, "Value is: " + value.toString() + " Title: " + value.getTitle());
+                        if (count++ > 50) {
+                            break;
+                        }
                     }
                     booksAdapter.notifyDataSetChanged();
                     // dataSnapshot is the "issue" node with all children with id 0
@@ -257,24 +259,26 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                     }
                     Book value = dataSnapshot.getValue(Book.class);
                     Toast.makeText(MainActivity.this, value.toString(), Toast.LENGTH_LONG).show();
-
-                    final LatLng point = new LatLng(41.7441, -72.6919);
-//                    final LatLng point = new LatLng(41.7441, -72.69189909557345);
-//                    BookToPositionConverter converter = new BookToPositionConverter();
-//                    final LatLng point = converter.getPosition(bookCallNumber);
-                    if (mMap != null) {
-
-                        mDestination = point;
-                        showResultMarker(point, bookTitle, bookCallNumber);
-                        if (mWayFinder != null) {
-                            mWayFinder.setDestination(point.latitude, point.longitude, mFloor);
-                        }
-                        Log.d(TAG, "Set destination: (" + mDestination.latitude + ", " +
-                                mDestination.longitude + "), floor=" + mFloor);
-
-                        updateRoute();
-                    }
+/////
+//                    final LatLng point = new LatLng(41.7441, -72.6919);
+////                    final LatLng point = new LatLng(41.7441, -72.69189909557345);
+////                    BookToPositionConverter converter = new BookToPositionConverter();
+////                    final LatLng point = converter.getPosition(bookCallNumber);
+//                    if (mMap != null) {
+//
+//                        mDestination = point;
+//                        showResultMarker(point, bookTitle, bookCallNumber);
+//                        if (mWayFinder != null) {
+//                            mWayFinder.setDestination(point.latitude, point.longitude, mFloor);
+//                        }
+//                        Log.d(TAG, "Set destination: (" + mDestination.latitude + ", " +
+//                                mDestination.longitude + "), floor=" + mFloor);
+//
+//                        updateRoute();
+//                    }
 //                    showResultMarker(center, bookTitle, bookCallNumber);
+
+                    /////
 
 //                    Log.d("On data change", value.toString());
 //                    resultAndCurrentLocationSwitch.setVisibility(View.VISIBLE);
@@ -425,13 +429,45 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         });
 
-        recylerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         booksAdapter = new BooksAdapter(booksList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recylerView.setLayoutManager(mLayoutManager);
-        recylerView.setItemAnimator(new DefaultItemAnimator());
-        recylerView.setAdapter(booksAdapter);
-        prepareBookData();
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new CustomDividerItemDecoration(this, LinearLayoutManager.VERTICAL, 16));
+        recyclerView.setAdapter(booksAdapter);
+
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), recyclerView, new RecyclerTouchListener.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                Book book = booksList.get(position);
+                String bookTitle = book.getTitle();
+                String bookCallNumber = book.getCallNumber();
+                final LatLng point = new LatLng(41.7441, -72.6919);
+//                    final LatLng point = new LatLng(41.7441, -72.69189909557345);
+//                    BookToPositionConverter converter = new BookToPositionConverter();
+//                    final LatLng point = converter.getPosition(bookCallNumber);
+                if (mMap != null) {
+
+                    mDestination = point;
+                    showResultMarker(point, bookTitle, bookCallNumber);
+                    if (mWayFinder != null) {
+                        mWayFinder.setDestination(point.latitude, point.longitude, mFloor);
+                    }
+                    Log.d(TAG, "Set destination: (" + mDestination.latitude + ", " +
+                            mDestination.longitude + "), floor=" + mFloor);
+
+                    updateRoute();
+                }
+                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
+        //prepareBookData();
 
         // instantiate IALocationManager and IAResourceManager
         mIALocationManager = IALocationManager.create(this);
@@ -740,5 +776,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         // path in current floor is visualized in red
         mPath = mMap.addPolyline(opt);
         mPathCurrent = mMap.addPolyline(optCurrent);
+    }
+
+    public interface ClickListener {
+        void onClick(View view, int position);
+
+        void onLongClick(View view, int position);
     }
 }
