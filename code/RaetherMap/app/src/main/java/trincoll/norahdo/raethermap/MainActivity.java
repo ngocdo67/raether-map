@@ -20,7 +20,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -111,14 +110,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private IARoutingLeg[] mCurrentRoute;
     private Integer mFloor;
 
+    private String mMessage = "";
+
     private Map<String, String> levelIdToName = new HashMap<>();
 
-//    @BindView(R.id.bottom_sheet)
     LinearLayout layoutBottomSheet;
 
     private BottomSheetBehavior sheetBehavior;
     private RecyclerView recyclerView;
-    private CoordinatorLayout coordinatorLayout;
     private BooksAdapter booksAdapter;
     private List<Book> booksList = new ArrayList<>();
 
@@ -239,8 +238,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    String bookTitle = "";
-                    String bookCallNumber = "";
+                    String bookTitle;
+                    String bookCallNumber;
                     int count = 0;
                     for (DataSnapshot issue : dataSnapshot.getChildren()) {
                         // do something with the individual "issues"
@@ -254,47 +253,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                         }
                     }
                     booksAdapter.notifyDataSetChanged();
-                    // dataSnapshot is the "issue" node with all children with id 0
-                    for (DataSnapshot issue : dataSnapshot.getChildren()) {
-                        // do something with the individual "issues"
+                    if (booksList.size() == 1) {
+                        drawPathToResult(booksList.get(0).getTitle(), booksList.get(0).getCallNumber());
                     }
                     Book value = dataSnapshot.getValue(Book.class);
                     Toast.makeText(MainActivity.this, value.toString(), Toast.LENGTH_LONG).show();
-/////
-//                    final LatLng point = new LatLng(41.7441, -72.6919);
-////                    final LatLng point = new LatLng(41.7441, -72.69189909557345);
-////                    BookToPositionConverter converter = new BookToPositionConverter();
-////                    final LatLng point = converter.getPosition(bookCallNumber);
-//                    if (mMap != null) {
-//
-//                        mDestination = point;
-//                        showResultMarker(point, bookTitle, bookCallNumber);
-//                        if (mWayFinder != null) {
-//                            mWayFinder.setDestination(point.latitude, point.longitude, mFloor);
-//                        }
-//                        Log.d(TAG, "Set destination: (" + mDestination.latitude + ", " +
-//                                mDestination.longitude + "), floor=" + mFloor);
-//
-//                        updateRoute();
-//                    }
-//                    showResultMarker(center, bookTitle, bookCallNumber);
-
-                    /////
-
-//                    Log.d("On data change", value.toString());
-//                    resultAndCurrentLocationSwitch.setVisibility(View.VISIBLE);
-//                    resultAndCurrentLocationSwitch.setText(R.string.current_location_switch);
-//                    if (mImageView != null && mImageView.isReady()) {
-//                        String floorPlanId = "52f5232c-6c63-42c2-bdaf-707783ee7b9a";
-//                        if (!TextUtils.isEmpty(floorPlanId)) {
-//                            final IALocation location = IALocation.from(IARegion.floorPlan(floorPlanId));
-//                            mIALocationManager.setLocation(location);
-//                        }
-//                        IALatLng latLng = new IALatLng(41.7441, -72.69189909557345);
-//                        PointF point = mFloorPlan.coordinateToPoint(latLng);
-//                        mImageView.setResultCenter(point);
-//                        mImageView.postInvalidate();
-//                    }
                 } else {
                     Log.d("TAG", "Data snapshot does not exist");
                 }
@@ -333,7 +296,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 //            showInfo("Enter " + (region.getType() == IARegion.TYPE_VENUE
 //                    ? "VENUE "
 //                    : "FLOOR_PLAN ") + region.getId());
-            showInfo("You are on " + (levelIdToName.containsKey(region.getId()) ? levelIdToName.get(region.getId()) : "Unknown Region"));
+            mMessage = "You are on " + (levelIdToName.containsKey(region.getId()) ? levelIdToName.get(region.getId()) : "Unknown Region");
+            showInfo(mMessage);
         }
 
         @Override
@@ -392,8 +356,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
-//        ButterKnife.bind(this);
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
         layoutBottomSheet = (LinearLayout) findViewById(R.id.bottom_sheet);
@@ -444,22 +406,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 Book book = booksList.get(position);
                 String bookTitle = book.getTitle();
                 String bookCallNumber = book.getCallNumber();
-                final LatLng point = new LatLng(41.7441, -72.6919);
-//                    final LatLng point = new LatLng(41.7441, -72.69189909557345);
-//                    BookToPositionConverter converter = new BookToPositionConverter();
-//                    final LatLng point = converter.getPosition(bookCallNumber);
-                if (mMap != null) {
-
-                    mDestination = point;
-                    showResultMarker(point, bookTitle, bookCallNumber);
-                    if (mWayFinder != null) {
-                        mWayFinder.setDestination(point.latitude, point.longitude, mFloor);
-                    }
-                    Log.d(TAG, "Set destination: (" + mDestination.latitude + ", " +
-                            mDestination.longitude + "), floor=" + mFloor);
-
-                    updateRoute();
-                }
+                drawPathToResult(bookTitle, bookCallNumber);
                 sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
 
@@ -492,11 +439,34 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             mWayFinder = IAWayfinder.create(this, graphJSON);
         }
 
-        levelIdToName.put("ecb0affc-e427-419a-a6f6-e3552ec9fe8d", "Test Dorm");
-        levelIdToName.put("9d6e58b2-1853-4de0-a655-b7f3368ea492", "Level A");
-        levelIdToName.put("4325d274-2346-4638-993d-37f57b8baadd", "Level 1");
-        levelIdToName.put("52f5232c-6c63-42c2-bdaf-707783ee7b9a", "Level 2");
-        levelIdToName.put("d3b33927-829d-48c3-a39b-0b97357b26bd", "Level 3");
+        levelIdToName.put("ecb0affc-e427-419a-a6f6-e3552ec9fe8d", Level.TEST.getName());
+        levelIdToName.put("9d6e58b2-1853-4de0-a655-b7f3368ea492", Level.A.getName());
+        levelIdToName.put("4325d274-2346-4638-993d-37f57b8baadd", Level.ONE.getName());
+        levelIdToName.put("52f5232c-6c63-42c2-bdaf-707783ee7b9a", Level.TWO.getName());
+        levelIdToName.put("d3b33927-829d-48c3-a39b-0b97357b26bd", Level.THREE.getName());
+    }
+
+    private void drawPathToResult(String bookTitle, String bookCallNumber) {
+//        final LatLng point = new LatLng(41.7441, -72.6919);
+//                    final LatLng point = new LatLng(41.7441, -72.69189909557345);
+//                    BookToPositionConverter converter = new BookToPositionConverter();
+//                    final LatLng point = converter.getPosition(bookCallNumber);
+        BookToPositionConverter converter = new BookToPositionConverter();
+        Position pos = converter.getPosition(bookCallNumber);
+        Level level = pos.getLevel();
+        final LatLng point = pos.getCoordinate();
+        if (mMap != null) {
+
+            mDestination = point;
+            showResultMarker(point, bookTitle, bookCallNumber);
+            if (mWayFinder != null) {
+                mWayFinder.setDestination(point.latitude, point.longitude, mFloor);
+            }
+            Log.d(TAG, "Set destination: (" + mDestination.latitude + ", " +
+                    mDestination.longitude + "), floor=" + mFloor);
+            showInfo("The book is on " + level.getName() + "\n" + mMessage);
+            updateRoute();
+        }
     }
 
     private void prepareBookData () {
@@ -523,30 +493,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     protected void onResume() {
         super.onResume();
         if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
             SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
             mapFragment.getMapAsync(this);
-
-//            try {
-//                mMap.setMyLocationEnabled(false);
-//            } catch (SecurityException e) {
-//                Log.d("Security exception", "Set my location enabled to false cannot be done");
-//            }
-
         }
 
         // start receiving location updates & monitor region changes
         mIALocationManager.requestLocationUpdates(IALocationRequest.create(), mListener);
         mIALocationManager.registerRegionListener(mRegionListener);
-
-//        // Setup long click to share the traceId
-//        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-//            @Override
-//            public void onMapLongClick(LatLng latLng) {
-//                ExampleUtils.shareText(MapsOverlayActivity.this,
-//                        mIALocationManager.getExtraInfo().traceId, "traceId");
-//            }
-//        });
     }
 
     @Override
@@ -777,11 +730,5 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         // path in current floor is visualized in red
         mPath = mMap.addPolyline(opt);
         mPathCurrent = mMap.addPolyline(optCurrent);
-    }
-
-    public interface ClickListener {
-        void onClick(View view, int position);
-
-        void onLongClick(View view, int position);
     }
 }

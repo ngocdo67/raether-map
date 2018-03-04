@@ -16,8 +16,10 @@ public class BookToPositionConverter {
         buildInitialMap();
     }
 
-    public LatLng getPosition (String title) {
-        return coordinateConverter.get(title) /*== null ? new LatLng(41.7476,-72.691) : coordinateConverter.get(title)*/;
+    public Position getPosition (String callNumber) {
+        Level level = buildLevel(callNumber);
+        LatLng coordinate = buildCoordinate(callNumber);
+        return new Position(level, coordinate);
     }
     private void buildInitialMap () {
         addBook("QA76.9.D35 A38 1983", new LatLng(41.7476,-72.691));
@@ -28,5 +30,29 @@ public class BookToPositionConverter {
     private boolean addBook (String callNumber, LatLng position) {
         coordinateConverter.put(callNumber, position);
         return true;
+    }
+
+    private Level buildLevel (String callNumber) {
+        if (callNumber != null && callNumber.length() > 7 && callNumber.contains("QUARTO")) {
+            callNumber = callNumber.substring(7);
+        }
+        if ("ABCDEFG".contains(String.valueOf(callNumber.charAt(0)))
+                || (callNumber.length() > 1
+                && callNumber.charAt(0) == 'T' && callNumber.charAt(1) <= 'R')) {
+            return Level.THREE;
+        } else if ("HJKLMN".contains(String.valueOf(callNumber.charAt(0)))
+                || (callNumber.length() > 1
+                && callNumber.charAt(0) == 'T' && callNumber.charAt(1) > 'R')) {
+            return Level.TWO;
+        } else if ("P".contains(String.valueOf(callNumber.charAt(0)))) {
+            return Level.ONE;
+        } else {
+            return Level.A;
+        }
+    }
+
+    private LatLng buildCoordinate (String callNumber) {
+//        return new LatLng(41.7476,-72.691);
+        return new LatLng(41.7441, -72.6919);
     }
 }
